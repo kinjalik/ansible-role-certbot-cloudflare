@@ -17,4 +17,4 @@ certbot_cloudflare_acme_test: "https://acme-staging-v02.api.letsencrypt.org/dire
 # Production ACME v2 API endpoint
 certbot_cloudflare_acme_live: "https://acme-v02.api.letsencrypt.org/directory"
 
-certbot_cloudflare_acme_server: "{{ certbot_cloudflare_acme_test }}"
+certbot_cloudflare_acme_server: "{{ certbot_cloudflare_acme_live }}"

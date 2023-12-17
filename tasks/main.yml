@@ -8,9 +8,9 @@
     - curl
     - libffi-dev
     - libssl-dev
-    - python-apt
-    - python-dev
-    - python-pycurl
+    - python3-apt
+    - python3-dev
+    - python3-pycurl
 
 - name: check if certbot-dns-cloudflare plugin is installed
   shell: certbot plugins | grep dns-cloudflare
@@ -19,7 +19,19 @@
   changed_when: "cf_check is failed"
 
 - name: Install certbot-dns-cloudflare
-  shell: "cd {{certbot_dir}}/certbot-dns-cloudflare && python setup.py install"
+  block:
+    - name: Trust certbot with root
+      community.general.snap:
+        name: certbot
+        options:
+          -  "trust-plugin-with-root=ok"
+    - name: Install plugin
+      community.general.snap:
+        name: certbot-dns-cloudflare
+    - name: Set connecitons
+      block:
+        - shell: "snap connect certbot:plugin certbot-dns-cloudflare"
+        - shell: "snap connect certbot-dns-cloudflare:certbot-metadata certbot:certbot-metadata"
   when: cf_check is failed
 
 - name: Create certbot folder - sudouser
@@ -42,5 +54,7 @@
     - { src: 'templates/letsencrypt_cli.ini.j2', dest: '/etc/letsencrypt/cli.ini' }
 
 - name: Create Certs.
+  vars:
+    certbot_create_if_missing: true
   include_role:
     name: geerlingguy.certbot
